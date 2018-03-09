@@ -2358,6 +2358,9 @@ public class Form {
                 params.comments = custComments;
             }
 
+            //  CM:  Citizen is in a sequence.
+            params.in_sequence = true;
+
             Executer.getInstance().getTasks().get(Uses.TASK_REDIRECT_CUSTOMER)
                     .process(params, "", new byte[4]);
 
@@ -2371,8 +2374,11 @@ public class Form {
             // Reset the combobox to default value/placeHolder
             ((Combobox) serveCustomerDialogWindow.getFellow("previous_services")).setText("");
 
+            SleepSeconds(7);
             this.invite();
+            SleepSeconds(7);
             this.begin();
+            SleepSeconds(7);
             this.refreshChannels();
             // QLog.l().logQUser().debug("Updating channels");
             // QLog.l().logQUser().debug(params.channelsIndex);
@@ -2688,16 +2694,7 @@ public class Form {
         //  CM:  For early returns.
         Boolean OkToContinue = true;
         
-        //  Debug
-        //QLog.l().logQUser().debug("==> Start: closeAddAndServeDialog");
-
         if (pickedRedirectServ != null) {
-
-            //  CM:  Debug.
-            //QCustomer cust = pickedRedirectServ.getCustomer();
-            //            QLog.l().logQUser().debug("    --> pickedRedirectServ not null, Name: "
-            //                    + pickedRedirectServ.getName());
-            //QLog.l().logQUser().debug("    --> Customer: " + cust.getFullNumber());
 
             if (!pickedRedirectServ.isLeaf()) {
                 Messagebox.show(l("group_not_service"), l("selecting_service"), Messagebox.OK,
@@ -2714,6 +2711,7 @@ public class Form {
 
             if (OkToContinue) {
                 final CmdParams params = this.paramsForAddingInQueue(Uses.PRIORITY_VIP, Boolean.TRUE);
+                params.in_sequence = true;
                 final RpcStandInService res = this.addToQueue(params);
                 customer = res.getResult();
 
@@ -2724,21 +2722,29 @@ public class Form {
                 service_list.invalidate();
                 addTicketDailogWindow.setVisible(false);
 
+                SleepSeconds(7);
                 this.invite();
+                SleepSeconds(7);
                 this.begin();
+                SleepSeconds(7);
                 BindUtils.postNotifyChange(null, null, Form.this, "*");
             }
         }
-        else {
-            //QLog.l().logQUser().debug("    --> pickedRedirectServ is null");
-        }
-
-        //  Debug
-        //QLog.l().logQUser().debug("==> End: closeAddAndServeDialog");
 
         //  CM:  Tracking.
         Executer.getInstance().TrackUserClick("Add: Begin Service", "After", user.getUser(), user
                 .getUser().getCustomer());
+    }
+
+    public void SleepSeconds(Integer seconds) {
+        try {
+            QLog.l().logQUser().debug("==> Sleeping " + seconds.toString() + " seconds.");
+            TimeUnit.SECONDS.sleep(seconds);
+        }
+        catch (Exception ex) {
+            QLog.l().logQUser().debug("==> Sleeping " + seconds.toString() + " seconds.  Error: "
+                    + ex.getMessage());
+        }
     }
 
     @Command
