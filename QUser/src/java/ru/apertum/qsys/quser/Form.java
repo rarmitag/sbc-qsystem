@@ -1488,6 +1488,29 @@ public class Form {
 
         //  CM:  See if OK to continue.
         if (OkToContinue) {
+
+            //  See if "In sequence" state has expired (5 seconds).
+            Long dateNow = (new Date()).getTime();
+            Boolean sequenceTimeOut = (dateNow - pickedCustomer.getStandTime().getTime()) > 5000;
+            String sto = (sequenceTimeOut ? "Yes" : "No");
+
+            //  CM:  Debug.
+            QLog.l().logQUser().debug("==> Pick: " + pickedCustomer.getName() + "; Seq: "
+                    + (pickedCustomer.getIsInSequence() ? "Yes" : "No") + "; State: "
+                    + pickedCustomer.getStateIn() + "; STO: " + sto);
+
+            //  CM:  Can't pick a customer if they are in a add to queue, invite, begin sequence.
+            if (pickedCustomer.getIsInSequence() && (!sequenceTimeOut)) {
+                OkToContinue = false;
+                Messagebox.show(
+                        "Another CSR is serving this citizen.  Please choose another citizen.",
+                        "Error picking customer from wait queue", Messagebox.OK,
+                        Messagebox.INFORMATION);
+            }
+        }
+
+        //  CM:  See if OK to continue.
+        if (OkToContinue) {
             final CmdParams params = new CmdParams();
 
             //  New "customer already picked" test.
@@ -2359,7 +2382,7 @@ public class Form {
             }
 
             //  CM:  Citizen is in a sequence.
-            params.in_sequence = true;
+            //params.in_sequence = true;
 
             Executer.getInstance().getTasks().get(Uses.TASK_REDIRECT_CUSTOMER)
                     .process(params, "", new byte[4]);
@@ -2575,6 +2598,9 @@ public class Form {
     }
 
     public RpcStandInService addToQueue(CmdParams params) {
+        
+        QLog.l().logQUser().debug("==> addToQueue: " + (params.in_sequence ? "Yes" : "No"));
+
         return (RpcStandInService) Executer.getInstance().getTasks().get(Uses.TASK_STAND_IN)
                 .process(params, "", new byte[4]);
     }
@@ -2738,8 +2764,10 @@ public class Form {
 
     public void SleepSeconds(Integer seconds) {
         try {
-            QLog.l().logQUser().debug("==> Sleeping " + seconds.toString() + " seconds.");
-            TimeUnit.SECONDS.sleep(seconds);
+            if (user.getUser().getId() != 88) {
+                QLog.l().logQUser().debug("==> Sleeping " + seconds.toString() + " seconds.");
+                TimeUnit.SECONDS.sleep(seconds);
+            }
         }
         catch (Exception ex) {
             QLog.l().logQUser().debug("==> Sleeping " + seconds.toString() + " seconds.  Error: "

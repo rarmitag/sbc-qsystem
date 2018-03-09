@@ -1391,7 +1391,8 @@ public final class Executer {
                 }
             } catch (Exception ex) {
                 QLog.l().logQUser().debug("Exception: " + ex.getMessage());
-                throw new ServerException("Ошибка при постановке клиента в очередь" + ex);
+                //throw new ServerException("Ошибка при постановке клиента в очередь" + ex);
+                throw new ServerException("Error creating client in the queue: " + ex);
             } finally {
                 CLIENT_TASK_LOCK.unlock();
             }
@@ -2232,6 +2233,7 @@ public final class Executer {
             final QCustomer customer = user.getCustomer();
             // комменты по редиректу
             customer.setTempComments(cmdParams.comments);
+            customer.setIsInSequence(cmdParams.in_sequence);
 
             // set added by which user
             customer.setAddedBy(QUserList.getInstance().getById(cmdParams.userId).getName());
@@ -3467,7 +3469,8 @@ public final class Executer {
                 //  Add quick txn or not, sequence or not.
                 customer.setTempQuickTxn(cmdParams.custQtxn);
                 customer.setIsInSequence(cmdParams.in_sequence);
-                //QLog.l().logQUser().debug("    --> Customer QTxn: " + (customer.getTempQuickTxn() ? "Yes" : "No"));
+                QLog.l().logQUser().debug("    --> Cust: " + customer.getName() + "; Cust Seq: "
+                        + (customer.getIsInSequence() ? "Yes" : "No"));
 
                 //добавим нового пользователя
                 // add a new user
