@@ -832,7 +832,7 @@ public final class QCustomer implements Comparable<QCustomer>, Serializable, Iid
 
     public void setTempComments(String tempComments) {
         //        QLog.l().logger().debug(">>> Cust comments: Old=" + this.tempComments + "; New="
-        //                + tempComments);
+        //                + tempComments);    
         this.tempComments = tempComments;
         //        QLog.l().logQUser().debug("\n\nIN CUSTOMER Postponed!!:\n" + this.tempComments + "\n\n\n");
     }
