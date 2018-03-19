@@ -956,8 +956,8 @@ public class Form {
         //  CM:  Kludge to prevent two CSRs calling the same citizen.
         Long officeId = user.getUser().getOffice().getId();
         Long lastTime = inviteTimes.get(officeId);
-        Long currentTime = System.currentTimeMillis();
-
+        Long currentTime = System.currentTimeMillis();    
+        
         //QLog.l().logQUser().debug("==> Invite: Off: " + officeId + "; Curr: " + currentTime + "; Last: " + lastTime);
         
         //  CM:  If less than 1 second since last invite in this office, wait.
@@ -1023,10 +1023,10 @@ public class Form {
         
     	if (!isNumeric(tempVal)){
         	lastGoodQuantity = customer.getQuantity();
-        	QLog.l().logQUser().debug("LastGoodQuantity ==> " +  lastGoodQuantity );
+        	//QLog.l().logQUser().debug("LastGoodQuantity ==> " +  lastGoodQuantity );
         }else{
         	lastGoodQuantity = tempVal;
-        	QLog.l().logQUser().debug("LGQ tempVal ==> " +  tempVal );
+        	//QLog.l().logQUser().debug("LGQ tempVal ==> " +  tempVal );
         }   
                
         serveCustomerDialogWindow.setVisible(true);
@@ -1205,27 +1205,33 @@ public class Form {
         params.welcomeTime = user.getCustomerWelcomeTime();
         params.comments = ((Textbox) serveCustomerDialogWindow.getFellow("editable_comments"))
                 .getText();
-
-        customer = user.getUser().getCustomer();
-        params.serviceId = user.getUser().getCustomer().getService().getId();
-        customer.setTempComments(params.comments);
-
+  
+        customer = user.getUser().getCustomer();                 
+        params.serviceId = user.getUser().getCustomer().getService().getId();          
+        customer.setTempComments(params.comments);              
+  
         // Set to User current Comments
         // QUser quser = QUserList.getInstance().getById(params.userId);
         // quser.setCurrentComments(params.comments);
 
+        // This line is causing the customer to drop the current user
         Executer.getInstance().getTasks().get(Uses.TASK_CUSTOMER_RETURN_QUEUE).process(params, "", new byte[4]);
-
-        customer = null;
-        setKeyRegim(KEYS_MAY_INVITE);
+    
+        // Quick fix - add current user back to customer
+        customer.setUser(user.getUser());
+  
+        setKeyRegim(KEYS_MAY_INVITE);     	
         service_list.setModel(service_list.getModel());
         refreshListServices();
         service_list.invalidate();
         serveCustomerDialogWindow.setVisible(false);
-
+           	 
+        customer = null;
+                
         //  CM:  Tracking.
-        Executer.getInstance().TrackUserClick("Srv: Return to queue", "Before", user.getUser(), user
-                .getUser().getCustomer());
+        Executer.getInstance().TrackUserClick("Srv: Return to queue", "After", user.getUser(), 
+        		customer);
+       
     }
 
     @Command

@@ -398,8 +398,8 @@ public class QService extends DefaultMutableTreeNode implements ITreeIdGetter, T
         lastStNumber = ServerProps.getInstance().getProps().getFirstNumber() - 1;
     }
 
-    private PriorityQueue<QCustomer> getCustomers() {
-        return customers;
+    private PriorityQueue<QCustomer> getCustomers() {	
+    	 return customers;
     }
 
     /**
@@ -973,6 +973,7 @@ public class QService extends DefaultMutableTreeNode implements ITreeIdGetter, T
                 }
             }
         }
+             
         // Ð¿Ð¾Ð´Ð´ÐµÑ€Ð¶ÐºÐ° Ñ€Ð°Ñ�ÑˆÐ¸Ñ€Ñ�ÐµÐ¼Ð¾Ñ�Ñ‚Ð¸ Ð¿Ð»Ð°Ð³Ð¸Ð½Ð°Ð¼Ð¸
         for (final ICustomerChangePosition event : ServiceLoader.load(ICustomerChangePosition.class)) {
             QLog.l().logger().info("Ð’Ñ‹Ð·Ð¾Ð² SPI Ñ€Ð°Ñ�ÑˆÐ¸Ñ€ÐµÐ½Ð¸Ñ�. ÐžÐ¿Ð¸Ñ�Ð°Ð½Ð¸Ðµ: " + event.getDescription());
@@ -1073,20 +1074,22 @@ public class QService extends DefaultMutableTreeNode implements ITreeIdGetter, T
         //  CM:  Loop through all customers to see if they are in the office input.   
         for (Iterator<QCustomer> itr = customers.iterator(); itr.hasNext();) {
             final QCustomer cust = itr.next();
-            //QLog.l().logQUser().debug("Polling customer: " + cust);
+            //QLog.l().logQUser().debug("Customer: " + cust);
             //QLog.l().logQUser().debug("  Office: " + cust.getOffice());
-            //QLog.l().logQUser().debug(" Service: " + cust.getService().name);
+            //QLog.l().logQUser().debug(" Service: " + cust.getService().name);            
+            //QLog.l().logQUser().debug("User: " + cust.getUser());
+            
             if (cust.getOffice().equals(office)) {
                 custHere.add(cust);
             }
         }
-
+      
         //  Debug.
         // QLog.l().logQUser().debug("==> End: peekAllCustomerByOffice: " + office + "; Customers: " + custHere.size());
         if (custHere.size() != 0) {
             // QLog.l().logQUser().debug("==> End: peekAllCustomerByOffice: " + office + "; Customers: " + custHere.size());
         }
-
+        
         return custHere;
     }
 
